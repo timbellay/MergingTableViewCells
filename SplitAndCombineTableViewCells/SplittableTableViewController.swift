@@ -62,9 +62,6 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		switch pinchGR.state {
 		case .Began:
 			
-			// TODO: Instead of setting scale to 1, we could calculate it in points and use 0.5 * scale as threshold of when to merge cells.
-			pinchGR.scale = 1
-			
 			let touch1: CGPoint = pinchGR.locationOfTouch(0, inView: tableView)
 			let touch2: CGPoint = pinchGR.locationOfTouch(1, inView: tableView)
 			let cell1IndexPath: NSIndexPath? = tableView.indexPathForRowAtPoint(touch1)
@@ -96,7 +93,6 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 			}
 			
 		case .Ended:
-			// TODO: Animate cells back to original positions if user did not pinch close enought to merge cells.
 			if let cells = mergingCells {
 				for cell in cells  {
 					UIView.animateWithDuration(0.2, animations: { () -> Void in
@@ -106,36 +102,36 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 				}
 			}
 			allowMerging = true
-		
+			
 		default:
 			if pinchGR.enabled && allowMerging {
-				let touch1: CGPoint = pinchGR.locationOfTouch(0, inView: tableView)
-				let touch2: CGPoint = pinchGR.locationOfTouch(1, inView: tableView)
-				if mergingCells?[0].center.y > mergingCells?[1].center.y || abs(touch1.y - touch2.y) < 44 {
-//					print("MERGE") // Debug.
-					pinchGR.enabled = false
-					if let mergeIPs = mergingCellsIndexPaths {
-						mergeCells(mergeIPs)
-					}
-				} else {
-					if (pinchGR.velocity < 0) {
-						mergingCells?[0].center.y += 2
-						mergingCells?[1].center.y -= 2
-						mergingCells?[0].alpha -= 0.012
-						mergingCells?[1].alpha -= 0.012
-					} else {
-						mergingCells?[0].center.y -= 2
-						mergingCells?[1].center.y += 2
-						mergingCells?[0].alpha += 0.012
-						mergingCells?[1].alpha += 0.012
+				let touch1Op: CGPoint? = pinchGR.locationOfTouch(0, inView: tableView)
+				let touch2Op: CGPoint? = pinchGR.locationOfTouch(1, inView: tableView)
+				
+				if let touch1 = touch1Op {
+					if let touch2 = touch2Op {
+						if mergingCells?[0].center.y > mergingCells?[1].center.y || abs(touch1.y - touch2.y) < 44 {
+							pinchGR.enabled = false
+							if let mergeIPs = mergingCellsIndexPaths {
+								mergeCells(mergeIPs)
+							}
+						} else {
+							if (pinchGR.velocity < 0) {
+								mergingCells?[0].center.y += 2
+								mergingCells?[1].center.y -= 2
+								mergingCells?[0].alpha -= 0.012
+								mergingCells?[1].alpha -= 0.012
+							} else {
+								mergingCells?[0].center.y -= 2
+								mergingCells?[1].center.y += 2
+								mergingCells?[0].alpha += 0.012
+								mergingCells?[1].alpha += 0.012
+							}
+						}
 					}
 				}
-				
-//				print("Scale: \(pinchGR.scale)")  // Debug.
-//				print("Velocoty: \(pinchGR.velocity)")  // Debug.
-			}
-			
-		}
+			} // end case default
+		} // end switch
 		
 	}
 	
