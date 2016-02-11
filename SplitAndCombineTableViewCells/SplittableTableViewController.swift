@@ -25,6 +25,7 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 	var colorList: [UIColor] = [.redColor(), .orangeColor(), .yellowColor(), .greenColor(), .blueColor(), .purpleColor()]
 	var pinchGR = UIPinchGestureRecognizer()
 	var mergingCells: [SplittableTableViewCell]?
+	var formingCell: SplittableTableViewCell?
 	var mergingCellsIndexPaths: [NSIndexPath]?
 	var allowMerging: Bool = true
 	
@@ -101,6 +102,8 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 					})
 				}
 			}
+			formingCell?.removeFromSuperview()
+			formingCell = nil
 			allowMerging = true
 			
 		default:
@@ -110,18 +113,28 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 				
 				if let touch1 = touch1Op {
 					if let touch2 = touch2Op {
-						if mergingCells?[0].center.y > mergingCells?[1].center.y || abs(touch1.y - touch2.y) < 44 {
+						if mergingCells![0].center.y > mergingCells![1].center.y || abs(touch1.y - touch2.y) < 44 {
 							pinchGR.enabled = false
 							if let mergeIPs = mergingCellsIndexPaths {
 								mergeCells(mergeIPs)
 							}
+							formingCell?.removeFromSuperview()
+							formingCell = nil
 						} else {
+							let intersectionRect = CGRectIntersection(mergingCells![0].frame, mergingCells![1].frame)
+
+							if formingCell == nil {
+								loadFormingCell(averageColor((mergingCells?[0].outlineView.backgroundColor)!, c2: (mergingCells?[1].outlineView.backgroundColor)!))
+							}
+							formingCell!.frame = intersectionRect
+							
 							if (pinchGR.velocity < 0) {
 								mergingCells?[0].center.y += 2
 								mergingCells?[1].center.y -= 2
 								mergingCells?[0].alpha -= 0.012
 								mergingCells?[1].alpha -= 0.012
 							} else {
+								// TODO: Stop movement of cells with distance get to far apart. 
 								mergingCells?[0].center.y -= 2
 								mergingCells?[1].center.y += 2
 								mergingCells?[0].alpha += 0.012
@@ -133,6 +146,13 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 			} // end case default
 		} // end switch
 		
+	}
+	
+	func loadFormingCell(color: UIColor) {
+		formingCell = NSBundle.mainBundle().loadNibNamed("SplittableTableViewCell", owner: nil, options: nil)[0] as? SplittableTableViewCell
+		formingCell?.outlineView.backgroundColor = color
+		formingCell?.backgroundColor = .clearColor()
+		tableView.addSubview(formingCell!)
 	}
 	
 	func insertRowAbove(cell: UITableViewCell, color: UIColor?) {
