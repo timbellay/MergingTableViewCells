@@ -58,29 +58,28 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 	// MARK: - Table view helpers
 	
 	func handlePinch(pinchGR: UIPinchGestureRecognizer) {
-	
-		if pinchGR.numberOfTouches() != 2 {
-			return
-		}
-		
-		let touch1: CGPoint? = pinchGR.locationOfTouch(0, inView: tableView)
-		let touch2: CGPoint? = pinchGR.locationOfTouch(1, inView: tableView)
-		var topTouch: CGPoint?
-		var bottomTouch: CGPoint?
-		
-		// Determine which touch is top cell vs. bottom cell.
-		if touch2?.y > touch1?.y {
-			topTouch = touch1!
-			bottomTouch = touch2!
-		}
-		if touch2?.y < touch1?.y {
-			topTouch = touch2!
-			bottomTouch = touch1!
-		}
 		
 		switch pinchGR.state {
 		case .Began:
 		
+			if pinchGR.numberOfTouches() != 2 {
+				return
+			}
+			let touch1: CGPoint? = pinchGR.locationOfTouch(0, inView: tableView)
+			let touch2: CGPoint? = pinchGR.locationOfTouch(1, inView: tableView)
+			var topTouch: CGPoint?
+			var bottomTouch: CGPoint?
+			
+			// Determine which touch is top cell vs. bottom cell.
+			if touch2?.y > touch1?.y {
+				topTouch = touch1!
+				bottomTouch = touch2!
+			}
+			if touch2?.y < touch1?.y {
+				topTouch = touch2!
+				bottomTouch = touch1!
+			}
+			
 			let topCellIndexPath: NSIndexPath? = tableView.indexPathForRowAtPoint(topTouch!)
 			let bottomCellIndexPath: NSIndexPath? = tableView.indexPathForRowAtPoint(bottomTouch!)
 			
@@ -108,31 +107,27 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 					UIView.animateWithDuration(0.2, animations: { () -> Void in
 						cell.center = cell.originalCenter!
 						cell.alpha = 1
+						}, completion: { (finished) -> Void in
+							if cell == self.mergingCells?.last {
+								self.mergingCells = nil
+							}
 					})
 				}
 			}
 			formingCell?.removeFromSuperview()
 			formingCell = nil
-			mergingCells = nil
 
 		default:
-			if pinchGR.numberOfTouches() < 2 {
-				formingCell = nil
-				mergingCells = nil
-				return
-			}
-			
-			if mergingCells == nil {
+			if pinchGR.numberOfTouches() < 2 || mergingCells == nil {
 				return
 			}
 			
 			// TODO: Fix for sometimes pinch fingers will hit before window centers get close enough to trigger merge for cells.
 			//				if abs(mergingCells![0].center.y - mergingCells![1].center.y) < 5 || (bottomTouch!.y - topTouch!.y) < 150 {
-			let topCellYpos = (mergingCells?[0].center.y)!
-			let bottomCellYPos = (mergingCells?[1].center.y)!
+
 			let intersectionRect = CGRectIntersection(mergingCells![0].frame, mergingCells![1].frame)
-			print("DIFF: \(bottomCellYPos - topCellYpos)")
-			if (intersectionRect.height) > 0.96 * (mergingCells?[0].frame.height)! {
+			print("Merged cell Height: \(intersectionRect.height / (mergingCells?[0].frame.height)!  * 100 ) %")
+			if (intersectionRect.height) > 0.95 * (mergingCells?[0].frame.height)! {
 				if let mergeIPs = mergingCellsIndexPaths {
 					mergeCells(mergeIPs)
 					mergingCellsIndexPaths = nil
@@ -160,8 +155,9 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 					mergingCells?[1].alpha += 0.012
 				}
 				
-			} // end case default
-		} // end switch
+			}
+			
+		} // End switch
 		
 	}
 	
