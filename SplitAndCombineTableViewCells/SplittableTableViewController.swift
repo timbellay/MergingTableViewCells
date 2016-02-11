@@ -210,6 +210,7 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 	
 	override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCellWithIdentifier("SplittableCellReuseID", forIndexPath: indexPath) as! SplittableTableViewCell
+		cell.backgroundColor = .clearColor() // Needs to be here to ensure background is transparent.
 		cell.outlineView.backgroundColor = colorList[indexPath.row]
 		cell.selectionStyle = .None
 		cell.showsReorderControl = true
