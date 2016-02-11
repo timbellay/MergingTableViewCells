@@ -111,7 +111,7 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 			if pinchGR.enabled && allowMerging {
 				let touch1: CGPoint = pinchGR.locationOfTouch(0, inView: tableView)
 				let touch2: CGPoint = pinchGR.locationOfTouch(1, inView: tableView)
-				if (mergingCells?[0].center.y > mergingCells?[1].center.y || touch1.y > touch2.y) {
+				if mergingCells?[0].center.y > mergingCells?[1].center.y || abs(touch1.y - touch2.y) < 44 {
 //					print("MERGE") // Debug.
 					pinchGR.enabled = false
 					if let mergeIPs = mergingCellsIndexPaths {
