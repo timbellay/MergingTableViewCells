@@ -26,6 +26,7 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 	var pinchGR = UIPinchGestureRecognizer()
 	var mergingCells: [SplittableTableViewCell]?
 	var mergingCellsIndexPaths: [NSIndexPath]?
+	var allowMerging: Bool = true
 	
 	// MARK: Table view setup and memory
 	func setUpTableView() {
@@ -79,18 +80,20 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 			
 			// Two cells should not be the same.
 			if c1IP.compare(c2IP) == .OrderedSame {
-				break
+				allowMerging = false
 			}
 			
 			// Two cell should be adjacent.
 			if abs(c1IP.row - c2IP.row) > 1 {
-				break
+				allowMerging = false
 			}
 			
-			mergingCellsIndexPaths = [cell1IndexPath!, cell2IndexPath!]
-			cell1.originalCenter = cell1.center
-			cell2.originalCenter = cell2.center
-			mergingCells = [cell1, cell2]
+			if allowMerging {
+				mergingCellsIndexPaths = [cell1IndexPath!, cell2IndexPath!]
+				cell1.originalCenter = cell1.center
+				cell2.originalCenter = cell2.center
+				mergingCells = [cell1, cell2]
+			}
 			
 		case .Ended:
 			// TODO: Animate cells back to original positions if user did not pinch close enought to merge cells.
@@ -102,11 +105,13 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 					})
 				}
 			}
-			break
+			allowMerging = true
 		
 		default:
-			if pinchGR.enabled {
-				if (pinchGR.scale < 0.25) {
+			if pinchGR.enabled && allowMerging {
+				let touch1: CGPoint = pinchGR.locationOfTouch(0, inView: tableView)
+				let touch2: CGPoint = pinchGR.locationOfTouch(1, inView: tableView)
+				if (mergingCells?[0].center.y > mergingCells?[1].center.y || touch1.y > touch2.y) {
 //					print("MERGE") // Debug.
 					pinchGR.enabled = false
 					if let mergeIPs = mergingCellsIndexPaths {
@@ -116,13 +121,13 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 					if (pinchGR.velocity < 0) {
 						mergingCells?[0].center.y += 2
 						mergingCells?[1].center.y -= 2
-						mergingCells?[0].alpha -= 0.025
-						mergingCells?[1].alpha -= 0.025
+						mergingCells?[0].alpha -= 0.012
+						mergingCells?[1].alpha -= 0.012
 					} else {
 						mergingCells?[0].center.y -= 2
 						mergingCells?[1].center.y += 2
-						mergingCells?[0].alpha += 0.025
-						mergingCells?[1].alpha += 0.025
+						mergingCells?[0].alpha += 0.012
+						mergingCells?[1].alpha += 0.012
 					}
 				}
 				
