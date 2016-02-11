@@ -14,6 +14,7 @@ public class SplittableTableViewCell: UITableViewCell {
 	@IBOutlet internal weak var outlineView: UIView!
 	let panGR = UIPanGestureRecognizer()
 	let pressGR = UILongPressGestureRecognizer()
+	public var indexPath: NSIndexPath!
 	public weak var splitCellDelegate: SplitGestureRecognizerDelegate?
 	
 	public override func awakeFromNib() {
@@ -83,7 +84,7 @@ public class SplittableTableViewCell: UITableViewCell {
 		case .Began:
 			print("LP BEGAIN")
 			if let delegate = splitCellDelegate {
-				delegate.insertRowAbove(self, color: nil)
+				delegate.insertMergedCellAtIndexPath(indexPath, color: nil)
 			}
 		case .Ended:
 			print("LP ENDED")

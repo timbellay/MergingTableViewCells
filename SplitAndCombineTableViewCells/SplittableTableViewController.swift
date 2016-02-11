@@ -9,7 +9,7 @@
 import UIKit
 
 public protocol SplitGestureRecognizerDelegate: class {
-	func insertRowAbove(cell: UITableViewCell, color: UIColor?)
+	func insertMergedCellAtIndexPath(indexPath: NSIndexPath, color: UIColor?)
 }
 
 public func + (left: CGPoint, right: CGPoint) -> CGPoint {
@@ -27,7 +27,6 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 	var mergingCells: [SplittableTableViewCell]?
 	var formingCell: SplittableTableViewCell?
 	var mergingCellsIndexPaths: [NSIndexPath]?
-	var allowMerging: Bool = true
 	
 	// MARK: Table view setup and memory
 	func setUpTableView() {
@@ -60,37 +59,47 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 	
 	func handlePinch(pinchGR: UIPinchGestureRecognizer) {
 	
+		if pinchGR.numberOfTouches() != 2 {
+			return
+		}
+		
+		let touch1: CGPoint? = pinchGR.locationOfTouch(0, inView: tableView)
+		let touch2: CGPoint? = pinchGR.locationOfTouch(1, inView: tableView)
+		var topTouch: CGPoint?
+		var bottomTouch: CGPoint?
+		
+		// Determine which touch is top cell vs. bottom cell.
+		if touch2?.y > touch1?.y {
+			topTouch = touch1!
+			bottomTouch = touch2!
+		}
+		if touch2?.y < touch1?.y {
+			topTouch = touch2!
+			bottomTouch = touch1!
+		}
+		
 		switch pinchGR.state {
 		case .Began:
-			
-			let touch1: CGPoint = pinchGR.locationOfTouch(0, inView: tableView)
-			let touch2: CGPoint = pinchGR.locationOfTouch(1, inView: tableView)
-			let cell1IndexPath: NSIndexPath? = tableView.indexPathForRowAtPoint(touch1)
-			let cell2IndexPath: NSIndexPath? = tableView.indexPathForRowAtPoint(touch2)
+		
+			let topCellIndexPath: NSIndexPath? = tableView.indexPathForRowAtPoint(topTouch!)
+			let bottomCellIndexPath: NSIndexPath? = tableView.indexPathForRowAtPoint(bottomTouch!)
 			
 			// Test unwraping of mergingCellsIndexPaths and that they are different.
-			guard let c1IP = cell1IndexPath
+			guard let topIndexPathUnwrapped = topCellIndexPath
 				else { break }
-			let cell1 = tableView.cellForRowAtIndexPath(cell1IndexPath!)! as! SplittableTableViewCell
-			guard let c2IP = cell2IndexPath
+			let topCell = tableView.cellForRowAtIndexPath(topCellIndexPath!)! as! SplittableTableViewCell
+			guard let bottomIndexPathUnwrapped = bottomCellIndexPath
 				else { break }
-			let cell2 = tableView.cellForRowAtIndexPath(cell2IndexPath!)! as! SplittableTableViewCell
+			let bottomCell = tableView.cellForRowAtIndexPath(bottomCellIndexPath!)! as! SplittableTableViewCell
 			
-			// Two cells should not be the same.
-			if c1IP.compare(c2IP) == .OrderedSame {
-				allowMerging = false
-			}
-			
-			// Two cell should be adjacent.
-			if abs(c1IP.row - c2IP.row) > 1 {
-				allowMerging = false
-			}
-			
-			if allowMerging {
-				mergingCellsIndexPaths = [cell1IndexPath!, cell2IndexPath!]
-				cell1.originalCenter = cell1.center
-				cell2.originalCenter = cell2.center
-				mergingCells = [cell1, cell2]
+			// Two cells should not be the same and the cells should be adjacent.
+			if topIndexPathUnwrapped.compare(bottomIndexPathUnwrapped) != .OrderedSame && abs(topIndexPathUnwrapped.row - bottomIndexPathUnwrapped.row) == 1 {
+					mergingCellsIndexPaths = [topIndexPathUnwrapped, bottomIndexPathUnwrapped]
+					topCell.originalCenter = topCell.center
+					bottomCell.originalCenter = bottomCell.center
+					mergingCells = [topCell, bottomCell]
+			} else {
+				mergingCells = nil
 			}
 			
 		case .Ended:
@@ -104,45 +113,53 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 			}
 			formingCell?.removeFromSuperview()
 			formingCell = nil
-			allowMerging = true
-			
-		default:
-			if pinchGR.enabled && allowMerging {
-				let touch1Op: CGPoint? = pinchGR.locationOfTouch(0, inView: tableView)
-				let touch2Op: CGPoint? = pinchGR.locationOfTouch(1, inView: tableView)
-				
-				if let touch1 = touch1Op {
-					if let touch2 = touch2Op {
-						if mergingCells![0].center.y > mergingCells![1].center.y || abs(touch1.y - touch2.y) < 44 {
-							pinchGR.enabled = false
-							if let mergeIPs = mergingCellsIndexPaths {
-								mergeCells(mergeIPs)
-							}
-							formingCell?.removeFromSuperview()
-							formingCell = nil
-						} else {
-							let intersectionRect = CGRectIntersection(mergingCells![0].frame, mergingCells![1].frame)
+			mergingCells = nil
 
-							if formingCell == nil {
-								loadFormingCell(averageColor((mergingCells?[0].outlineView.backgroundColor)!, c2: (mergingCells?[1].outlineView.backgroundColor)!))
-							}
-							formingCell!.frame = intersectionRect
-							
-							if (pinchGR.velocity < 0) {
-								mergingCells?[0].center.y += 2
-								mergingCells?[1].center.y -= 2
-								mergingCells?[0].alpha -= 0.012
-								mergingCells?[1].alpha -= 0.012
-							} else {
-								// TODO: Stop movement of cells with distance get to far apart. 
-								mergingCells?[0].center.y -= 2
-								mergingCells?[1].center.y += 2
-								mergingCells?[0].alpha += 0.012
-								mergingCells?[1].alpha += 0.012
-							}
-						}
-					}
+		default:
+			if pinchGR.numberOfTouches() < 2 {
+				formingCell = nil
+				mergingCells = nil
+				return
+			}
+			
+			if mergingCells == nil {
+				return
+			}
+			
+			// TODO: Fix for sometimes pinch fingers will hit before window centers get close enough to trigger merge for cells.
+			//				if abs(mergingCells![0].center.y - mergingCells![1].center.y) < 5 || (bottomTouch!.y - topTouch!.y) < 150 {
+			let topCellYpos = (mergingCells?[0].center.y)!
+			let bottomCellYPos = (mergingCells?[1].center.y)!
+			let intersectionRect = CGRectIntersection(mergingCells![0].frame, mergingCells![1].frame)
+			print("DIFF: \(bottomCellYPos - topCellYpos)")
+			if (intersectionRect.height) > 0.96 * (mergingCells?[0].frame.height)! {
+				if let mergeIPs = mergingCellsIndexPaths {
+					mergeCells(mergeIPs)
+					mergingCellsIndexPaths = nil
+					mergingCells = nil
 				}
+				formingCell?.removeFromSuperview()
+				formingCell = nil
+			} else {
+				
+				if formingCell == nil {
+					loadFormingCell(averageColor((mergingCells?[0].outlineView.backgroundColor)!, c2: (mergingCells?[1].outlineView.backgroundColor)!))
+				}
+				formingCell!.frame = intersectionRect
+				
+				if (pinchGR.velocity < 0) {
+					mergingCells?[0].center.y += 2
+					mergingCells?[1].center.y -= 2
+					mergingCells?[0].alpha -= 0.012
+					mergingCells?[1].alpha -= 0.012
+				} else {
+					// TODO: Stop movement of cells with distance get to far apart.
+					mergingCells?[0].center.y -= 2
+					mergingCells?[1].center.y += 2
+					mergingCells?[0].alpha += 0.012
+					mergingCells?[1].alpha += 0.012
+				}
+				
 			} // end case default
 		} // end switch
 		
@@ -155,41 +172,43 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		tableView.addSubview(formingCell!)
 	}
 	
-	func insertRowAbove(cell: UITableViewCell, color: UIColor?) {
-		if let indexPath = tableView.indexPathForCell(cell) {
-			if indexPath.row > 0 && color == nil {
-				colorList.insert(averageColor(colorList[indexPath.row], c2: colorList[indexPath.row - 1]), atIndex: indexPath.row)
-			} else if color != nil {
-				colorList.insert(color!, atIndex: indexPath.row)
-			} else {
-				colorList.insert(averageColor(.whiteColor(), c2: colorList[indexPath.row]), atIndex: indexPath.row)
-			}
-			tableView.beginUpdates()
-			tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Bottom)
-			tableView.endUpdates()
+	func insertMergedCellAtIndexPath(indexPath: NSIndexPath, color: UIColor?) {
+		if indexPath.row > 0 && color == nil {
+			colorList.insert(averageColor(colorList[indexPath.row], c2: colorList[indexPath.row - 1]), atIndex: indexPath.row)
+		} else if color != nil {
+			colorList.insert(color!, atIndex: indexPath.row)
+		} else {
+			colorList.insert(averageColor(.whiteColor(), c2: colorList[indexPath.row]), atIndex: indexPath.row)
 		}
+		tableView.beginUpdates()
+		tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Bottom)
+		tableView.endUpdates()
 	}
 	
 	func mergeCells(indexPaths: [NSIndexPath]) {
-		let indexPathToRemove = indexPaths[0]
-		colorList.removeAtIndex(indexPathToRemove.row)
-		colorList.removeAtIndex(indexPathToRemove.row)
+		
+		if mergingCells == nil {
+			return
+		}
+		
+		let sortedIPs = indexPaths.sort({$0.row < $1.row})
+		
+		colorList.removeAtIndex(sortedIPs[1].row) // Remove bottom cell first
+		colorList.removeAtIndex(sortedIPs[0].row) // Remove top cell next
 		
 		if let cells = mergingCells {
 			for cell in cells {
+				// TODO: Fade these merging cells out.
 				cell.hidden = true
 			}
+			
 		}
-		
 		tableView.beginUpdates()
 		tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
 		tableView.endUpdates()
-		if let cell = tableView.cellForRowAtIndexPath(indexPathToRemove) {
-			let avgColor = averageColor((mergingCells?[0].outlineView.backgroundColor)!, c2: (mergingCells?[1].outlineView.backgroundColor)!)
-			insertRowAbove(cell, color: avgColor)
-		}
-		pinchGR.enabled = true
-
+		let avgColor = averageColor((mergingCells?[0].outlineView.backgroundColor)!, c2: (mergingCells?[1].outlineView.backgroundColor)!)
+		insertMergedCellAtIndexPath(sortedIPs[0], color: avgColor)
+		mergingCells = nil
 	}
 	
 	
@@ -231,6 +250,7 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		cell.selectionStyle = .None
 		cell.showsReorderControl = true
 		cell.splitCellDelegate = self
+		cell.indexPath = indexPath
 		return cell
 	}
 	
