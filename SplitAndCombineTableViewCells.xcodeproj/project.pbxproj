@@ -8,20 +8,24 @@
 
 /* Begin PBXBuildFile section */
 		2E2F8A5D1C66FC9B00EE817A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2F8A5C1C66FC9B00EE817A /* AppDelegate.swift */; };
-		2E2F8A5F1C66FC9B00EE817A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2F8A5E1C66FC9B00EE817A /* ViewController.swift */; };
 		2E2F8A621C66FC9B00EE817A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2E2F8A601C66FC9B00EE817A /* Main.storyboard */; };
 		2E2F8A641C66FC9B00EE817A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2E2F8A631C66FC9B00EE817A /* Assets.xcassets */; };
 		2E2F8A671C66FC9B00EE817A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2E2F8A651C66FC9B00EE817A /* LaunchScreen.storyboard */; };
+		2E2F8A6F1C66FCE200EE817A /* SplittableTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2F8A6E1C66FCE200EE817A /* SplittableTableViewController.swift */; };
+		2E2F8A731C6705A500EE817A /* SplittableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2F8A711C6705A500EE817A /* SplittableTableViewCell.swift */; };
+		2E2F8A741C6705A500EE817A /* SplittableTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2E2F8A721C6705A500EE817A /* SplittableTableViewCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		2E2F8A591C66FC9B00EE817A /* SplitAndCombineTableViewCells.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SplitAndCombineTableViewCells.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E2F8A5C1C66FC9B00EE817A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		2E2F8A5E1C66FC9B00EE817A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		2E2F8A611C66FC9B00EE817A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2E2F8A631C66FC9B00EE817A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2E2F8A661C66FC9B00EE817A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2E2F8A681C66FC9B00EE817A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2E2F8A6E1C66FCE200EE817A /* SplittableTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplittableTableViewController.swift; sourceTree = "<group>"; };
+		2E2F8A711C6705A500EE817A /* SplittableTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SplittableTableViewCell.swift; path = Views/SplittableTableViewCell.swift; sourceTree = "<group>"; };
+		2E2F8A721C6705A500EE817A /* SplittableTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SplittableTableViewCell.xib; path = Views/SplittableTableViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,14 +58,24 @@
 		2E2F8A5B1C66FC9B00EE817A /* SplitAndCombineTableViewCells */ = {
 			isa = PBXGroup;
 			children = (
-				2E2F8A5C1C66FC9B00EE817A /* AppDelegate.swift */,
-				2E2F8A5E1C66FC9B00EE817A /* ViewController.swift */,
 				2E2F8A601C66FC9B00EE817A /* Main.storyboard */,
+				2E2F8A6E1C66FCE200EE817A /* SplittableTableViewController.swift */,
+				2E2F8A701C67010C00EE817A /* Views */,
+				2E2F8A5C1C66FC9B00EE817A /* AppDelegate.swift */,
 				2E2F8A631C66FC9B00EE817A /* Assets.xcassets */,
 				2E2F8A651C66FC9B00EE817A /* LaunchScreen.storyboard */,
 				2E2F8A681C66FC9B00EE817A /* Info.plist */,
 			);
 			path = SplitAndCombineTableViewCells;
+			sourceTree = "<group>";
+		};
+		2E2F8A701C67010C00EE817A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2E2F8A711C6705A500EE817A /* SplittableTableViewCell.swift */,
+				2E2F8A721C6705A500EE817A /* SplittableTableViewCell.xib */,
+			);
+			name = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -125,6 +139,7 @@
 				2E2F8A671C66FC9B00EE817A /* LaunchScreen.storyboard in Resources */,
 				2E2F8A641C66FC9B00EE817A /* Assets.xcassets in Resources */,
 				2E2F8A621C66FC9B00EE817A /* Main.storyboard in Resources */,
+				2E2F8A741C6705A500EE817A /* SplittableTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,8 +150,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2E2F8A5F1C66FC9B00EE817A /* ViewController.swift in Sources */,
 				2E2F8A5D1C66FC9B00EE817A /* AppDelegate.swift in Sources */,
+				2E2F8A731C6705A500EE817A /* SplittableTableViewCell.swift in Sources */,
+				2E2F8A6F1C66FCE200EE817A /* SplittableTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
