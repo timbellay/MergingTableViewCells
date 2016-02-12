@@ -12,7 +12,7 @@ public class SplittableTableViewCell: UITableViewCell {
 	
 	public var originalCenter: CGPoint? // For animations back to original position in tableView upon cancel of failure to merge with another.
 	@IBOutlet internal weak var outlineView: UIView!
-	let panGR = UIPanGestureRecognizer()
+//	let panGR = UIPanGestureRecognizer()
 	let pressGR = UILongPressGestureRecognizer()
 	public var indexPath: NSIndexPath!
 	public weak var splitCellDelegate: SplitGestureRecognizerDelegate?
@@ -57,7 +57,7 @@ public class SplittableTableViewCell: UITableViewCell {
 		
 		switch panGR.state {
 		case .Began:
-			print("Pan Begin")
+			break
 		case .Changed:
 			var center = self.center
 			if direction == 1 {
@@ -73,7 +73,7 @@ public class SplittableTableViewCell: UITableViewCell {
 			self.transform = angleTransform
 			self.center = center
 		case .Ended:
-			print("Pan Ended")
+			break
 		default:
 			break
 		}
@@ -82,13 +82,11 @@ public class SplittableTableViewCell: UITableViewCell {
 	func handlePress(pressGR: UILongPressGestureRecognizer) {
 		switch pressGR.state {
 		case .Began:
-			print("LP BEGAIN")
 			if let delegate = splitCellDelegate {
 				delegate.insertMergedCellAtIndexPath(indexPath, color: nil)
 			}
 		case .Ended:
-			print("LP ENDED")
-			
+			break
 		default:
 			break
 		}

@@ -125,7 +125,7 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 			}
 		
 			let intersectionRect = CGRectIntersection(mergingCells![0].frame, mergingCells![1].frame)
-			print("Merged cell Height: \(intersectionRect.height / (mergingCells?[0].frame.height)!  * 100 ) %")
+//			print("Merged cell Height: \(intersectionRect.height / (mergingCells?[0].frame.height)!  * 100 ) %") // Debug.
 			if (intersectionRect.height) > 0.95 * (mergingCells?[0].frame.height)! {
 				if let mergeIPs = mergingCellsIndexPaths {
 					mergeCells(mergeIPs)
