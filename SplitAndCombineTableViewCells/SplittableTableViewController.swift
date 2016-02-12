@@ -22,13 +22,15 @@ public func += (inout left: CGPoint, right: CGPoint) {
 
 class SplittableTableViewController: UITableViewController, UIGestureRecognizerDelegate, SplitGestureRecognizerDelegate {
 	
+	// TODO: [Cleanup] Pull out all constants into a constants.swift file. Remove magic numbers and replace with constants or computed values.
+	
 	var colorList: [UIColor] = [.redColor(), .orangeColor(), .yellowColor(), .greenColor(), .blueColor(), .purpleColor()]
 	var pinchGR = UIPinchGestureRecognizer()
 	var mergingCells: [SplittableTableViewCell]?
 	var formingCell: SplittableTableViewCell?
 	var mergingCellsIndexPaths: [NSIndexPath]?
 	
-	// MARK: Table view setup and memory
+	// MARK: Table view setup and memory warning 
 	func setUpTableView() {
 		tableView.separatorStyle = .None
 		let splittableCellNib = UINib(nibName: "SplittableTableViewCell", bundle: NSBundle.mainBundle())
@@ -121,10 +123,7 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 			if pinchGR.numberOfTouches() < 2 || mergingCells == nil {
 				return
 			}
-			
-			// TODO: Fix for sometimes pinch fingers will hit before window centers get close enough to trigger merge for cells.
-			//				if abs(mergingCells![0].center.y - mergingCells![1].center.y) < 5 || (bottomTouch!.y - topTouch!.y) < 150 {
-
+		
 			let intersectionRect = CGRectIntersection(mergingCells![0].frame, mergingCells![1].frame)
 			print("Merged cell Height: \(intersectionRect.height / (mergingCells?[0].frame.height)!  * 100 ) %")
 			if (intersectionRect.height) > 0.95 * (mergingCells?[0].frame.height)! {
@@ -249,44 +248,5 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		cell.indexPath = indexPath
 		return cell
 	}
-	
-	//    // Override to support conditional editing of the table view.
-	//    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-	//        return true
-	//    }
-	//
-	//	// Override to support editing the table view.
-	//    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-	//        if editingStyle == .Delete {
-	//            // Delete the row from the data source
-	//            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-	//        } else if editingStyle == .Insert {
-	//            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-	//        }
-	//    }
-	//
-	//    // Override to support rearranging the table view.
-	//    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-	//		print("delegate moveRowAtIndexPath called")
-	//		let itemToMove = colorList[fromIndexPath.row]
-	//		colorList.removeAtIndex(fromIndexPath.row)
-	//		colorList.insert(itemToMove, atIndex: toIndexPath.row)
-	//	}
-	//
-	//    // Override to support conditional rearranging of the table view.
-	//    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-	//        // Return false if you do not want the item to be re-orderable.
-	//        return true
-	//    }
-	
-	/*
-	// MARK: - Navigation
-	
-	// In a storyboard-based application, you will often want to do a little preparation before navigation
-	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-	// Get the new view controller using segue.destinationViewController.
-	// Pass the selected object to the new view controller.
-	}
-	*/
 	
 }
