@@ -17,6 +17,11 @@ public class SplittableTableViewCell: UITableViewCell {
 	public var indexPath: NSIndexPath!
 	public weak var splitCellDelegate: SplitGestureRecognizerDelegate?
 	
+	// Data Labels
+	@IBOutlet weak var milesTraveledLabel: UILabel!
+	@IBOutlet weak var potentialMoneyReimbursement: UILabel!
+	
+	
 	public override func awakeFromNib() {
 		super.awakeFromNib()
 		

@@ -22,15 +22,18 @@ public func += (inout left: CGPoint, right: CGPoint) {
 
 class SplittableTableViewController: UITableViewController, UIGestureRecognizerDelegate, SplitGestureRecognizerDelegate {
 	
-	// TODO: [Cleanup] Pull out all constants into a constants.swift file. Remove magic numbers and replace with constants or computed values.
+	// TODO: [Cleanup] Pull out all constants into a constants.swift file. Remove magic numbers and replace with constants or computed values. Rename SplittableTableViewCell to "Mergable", etc.
+	
 	
 	var colorList: [UIColor] = [.redColor(), .orangeColor(), .yellowColor(), .greenColor(), .blueColor(), .purpleColor()]
+	var miles: [Float] = [1.2, 2.4, 23, 4.5, 1.1, 7.6]
+	var payouts: [Float]!
 	var pinchGR = UIPinchGestureRecognizer()
 	var mergingCells: [SplittableTableViewCell]?
 	var formingCell: SplittableTableViewCell?
 	var mergingCellsIndexPaths: [NSIndexPath]?
 	
-	// MARK: Table view setup and memory warning 
+	// MARK: TableView setup
 	func setUpTableView() {
 		tableView.separatorStyle = .None
 		let splittableCellNib = UINib(nibName: "SplittableTableViewCell", bundle: NSBundle.mainBundle())
@@ -39,25 +42,15 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		pinchGR.addTarget(self, action: "handlePinch:")
 		tableView.addGestureRecognizer(pinchGR)
 		pinchGR.delegate = self
-		
-		//		self.navigationItem.rightBarButtonItem = self.editButtonItem()
 	}
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		payouts = miles.map({$0 * 0.5})
 		setUpTableView()
-		// Uncomment the following line to preserve selection between presentations
-		// self.clearsSelectionOnViewWillAppear = false
-		
 	}
 	
-	override func didReceiveMemoryWarning() {
-		super.didReceiveMemoryWarning()
-		// Dispose of any resources that can be recreated.
-	}
-	
-	
-	// MARK: - Table view helpers
+	// MARK: - Table view gesture handling
 	
 	func handlePinch(pinchGR: UIPinchGestureRecognizer) {
 		
@@ -125,21 +118,32 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 			}
 		
 			let intersectionRect = CGRectIntersection(mergingCells![0].frame, mergingCells![1].frame)
-//			print("Merged cell Height: \(intersectionRect.height / (mergingCells?[0].frame.height)!  * 100 ) %") // Debug.
-			if (intersectionRect.height) > 0.95 * (mergingCells?[0].frame.height)! {
+			let formingCellRect = CGRectMake(intersectionRect.origin.x, intersectionRect.origin.y-2, intersectionRect.width, intersectionRect.height + 4)
+			
+//			print("Merged cell Height: \(formingCellRect.height / (mergingCells?[0].frame.height)!  * 100 ) %") // Debug.
+			if (formingCellRect.height) > 0.95 * (mergingCells?[0].frame.height)! {
 				if let mergeIPs = mergingCellsIndexPaths {
 					mergeCells(mergeIPs)
+					// TODO: [BUG] Fix NSLayoutConstraint conflict for tableView.bottomMargin.
 					mergingCellsIndexPaths = nil
 					mergingCells = nil
 				}
 				formingCell?.removeFromSuperview()
-				formingCell = nil
+				
 			} else {
 				
 				if formingCell == nil {
+					// Create newCell from merge of two neighbor cells.
 					loadFormingCell(averageColor((mergingCells?[0].outlineView.backgroundColor)!, c2: (mergingCells?[1].outlineView.backgroundColor)!))
+					tableView.addSubview(formingCell!)
+				
 				}
-				formingCell!.frame = intersectionRect
+				let mergedData = mergeData()
+				
+				formingCell?.milesTraveledLabel.text = mergedData.0
+				formingCell?.potentialMoneyReimbursement.text = mergedData.1
+				
+				formingCell!.frame = formingCellRect
 				
 				if (pinchGR.velocity < 0) {
 					mergingCells?[0].center.y += 2
@@ -160,11 +164,14 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		
 	}
 	
+	// MARK: - Table view helpers
+	
 	func loadFormingCell(color: UIColor) {
 		formingCell = NSBundle.mainBundle().loadNibNamed("SplittableTableViewCell", owner: nil, options: nil)[0] as? SplittableTableViewCell
 		formingCell?.outlineView.backgroundColor = color
 		formingCell?.backgroundColor = .clearColor()
-		tableView.addSubview(formingCell!)
+//		formingCell?.outlineView.layer.shadowOffset = CGSizeMake(4, 4)
+//		formingCell?.outlineView.layer.shadowOpacity = 0.5
 	}
 	
 	func insertMergedCellAtIndexPath(indexPath: NSIndexPath, color: UIColor?) {
@@ -175,8 +182,18 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		} else {
 			colorList.insert(averageColor(.whiteColor(), c2: colorList[indexPath.row]), atIndex: indexPath.row)
 		}
+		
+		if formingCell == nil {
+			loadFormingCell(averageColor(.whiteColor(), c2: colorList[indexPath.row]))
+		}
+		let milesText = formingCell?.milesTraveledLabel.text!
+		var payoutText = formingCell?.potentialMoneyReimbursement.text!
+		payoutText = payoutText?.stringByReplacingOccurrencesOfString("$", withString: "", options: .LiteralSearch, range: nil)
+		miles.insert(Float(milesText!)!, atIndex: indexPath.row)
+		payouts.insert(Float(payoutText!)!, atIndex: indexPath.row)
+		
 		tableView.beginUpdates()
-		tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Bottom)
+		tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
 		tableView.endUpdates()
 	}
 	
@@ -190,6 +207,10 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		
 		colorList.removeAtIndex(sortedIPs[1].row) // Remove bottom cell first
 		colorList.removeAtIndex(sortedIPs[0].row) // Remove top cell next
+		miles.removeAtIndex(sortedIPs[1].row)
+		miles.removeAtIndex(sortedIPs[0].row)
+		payouts.removeAtIndex(sortedIPs[1].row)
+		payouts.removeAtIndex(sortedIPs[0].row)
 		
 		if let cells = mergingCells {
 			for cell in cells {
@@ -206,6 +227,23 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		mergingCells = nil
 	}
 	
+	func mergeData()-> (String?, String?) {
+		// This would normally access the model for each Drive.
+		if let cells = mergingCells {
+			let firstMiles = Float(cells[0].milesTraveledLabel.text!)
+			let secondMiles = Float(cells[1].milesTraveledLabel.text!)
+			let totalMiles = firstMiles! + secondMiles!
+			
+			let firstPayoutText = cells[0].potentialMoneyReimbursement.text!.stringByReplacingOccurrencesOfString("$", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+			let secondPayoutText = cells[1].potentialMoneyReimbursement.text!.stringByReplacingOccurrencesOfString("$", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+			let firstPayout = Float(firstPayoutText)
+			let secondPayout = Float(secondPayoutText)
+			let totalPayout = firstPayout! + secondPayout!
+			
+			return (String(totalMiles), "$" + String(totalPayout))
+		}
+		return (nil, nil)
+	}
 	
 	func averageColor(c1: UIColor, c2: UIColor) -> UIColor {
 		var c1red: CGFloat = 0
@@ -246,6 +284,9 @@ class SplittableTableViewController: UITableViewController, UIGestureRecognizerD
 		cell.showsReorderControl = true
 		cell.splitCellDelegate = self
 		cell.indexPath = indexPath
+		cell.milesTraveledLabel.text = String(miles[indexPath.row])
+		cell.potentialMoneyReimbursement.text = "$" + String(payouts[indexPath.row])
+		
 		return cell
 	}
 	
