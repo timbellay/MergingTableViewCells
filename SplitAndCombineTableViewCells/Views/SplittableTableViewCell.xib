@@ -16,35 +16,57 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3fD-4g-Tfm" userLabel="Outline View">
-                        <rect key="frame" x="8" y="8" width="402" height="263.5"/>
+                        <rect key="frame" x="16" y="8" width="386" height="263.5"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="4.8" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mcu-fs-i1i">
-                                <rect key="frame" x="8" y="8" width="25" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <rect key="frame" x="20" y="12" width="37.5" height="27.5"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MILES" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LnF-Nv-l2j">
+                                <rect key="frame" x="22" y="39" width="33" height="13.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="POTENTIAL" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zsQ-7m-eQY">
+                                <rect key="frame" x="302.5" y="39" width="61" height="13.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$2.59" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bUJ-Vz-pVh">
-                                <rect key="frame" x="349" y="8" width="45" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <rect key="frame" x="299" y="12" width="66.5" height="27.5"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="Mcu-fs-i1i" firstAttribute="top" secondItem="3fD-4g-Tfm" secondAttribute="top" constant="8" id="Tss-Se-NMx"/>
-                            <constraint firstItem="bUJ-Vz-pVh" firstAttribute="top" secondItem="3fD-4g-Tfm" secondAttribute="top" constant="8" id="Zaw-nj-VW8"/>
-                            <constraint firstItem="Mcu-fs-i1i" firstAttribute="leading" secondItem="3fD-4g-Tfm" secondAttribute="leading" constant="8" id="mg6-Un-Rg0"/>
-                            <constraint firstAttribute="trailing" secondItem="bUJ-Vz-pVh" secondAttribute="trailing" constant="8" id="rmY-XF-vmm"/>
+                            <constraint firstItem="LnF-Nv-l2j" firstAttribute="centerX" secondItem="Mcu-fs-i1i" secondAttribute="centerX" id="0su-dO-bqP"/>
+                            <constraint firstItem="zsQ-7m-eQY" firstAttribute="baseline" secondItem="LnF-Nv-l2j" secondAttribute="baseline" id="EcU-Dv-4u0"/>
+                            <constraint firstItem="bUJ-Vz-pVh" firstAttribute="centerX" secondItem="zsQ-7m-eQY" secondAttribute="centerX" id="IAW-E1-KTS"/>
+                            <constraint firstItem="LnF-Nv-l2j" firstAttribute="centerX" secondItem="Mcu-fs-i1i" secondAttribute="centerX" id="TEv-oR-gSf"/>
+                            <constraint firstItem="Mcu-fs-i1i" firstAttribute="top" secondItem="3fD-4g-Tfm" secondAttribute="top" constant="12" id="Tss-Se-NMx"/>
+                            <constraint firstItem="bUJ-Vz-pVh" firstAttribute="top" secondItem="3fD-4g-Tfm" secondAttribute="top" constant="12" id="Zaw-nj-VW8"/>
+                            <constraint firstItem="LnF-Nv-l2j" firstAttribute="top" secondItem="Mcu-fs-i1i" secondAttribute="bottom" id="hzd-kO-Tdo"/>
+                            <constraint firstItem="Mcu-fs-i1i" firstAttribute="leading" secondItem="3fD-4g-Tfm" secondAttribute="leading" constant="20" symbolic="YES" id="mg6-Un-Rg0"/>
+                            <constraint firstAttribute="trailing" secondItem="bUJ-Vz-pVh" secondAttribute="trailing" constant="20" symbolic="YES" id="rmY-XF-vmm"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="0su-dO-bqP"/>
+                            </mask>
+                        </variation>
                     </view>
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="bottomMargin" secondItem="3fD-4g-Tfm" secondAttribute="bottom" id="lLT-Kw-p5u"/>
-                    <constraint firstItem="3fD-4g-Tfm" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" id="oNe-Np-bjI"/>
+                    <constraint firstItem="3fD-4g-Tfm" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" constant="8" id="oNe-Np-bjI"/>
                     <constraint firstItem="3fD-4g-Tfm" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" id="plv-Nq-UDf"/>
-                    <constraint firstAttribute="trailingMargin" secondItem="3fD-4g-Tfm" secondAttribute="trailing" id="u9f-9g-Whl"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="3fD-4g-Tfm" secondAttribute="trailing" constant="8" id="u9f-9g-Whl"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
@@ -52,7 +74,7 @@
                 <outlet property="outlineView" destination="3fD-4g-Tfm" id="gfP-7i-xn9"/>
                 <outlet property="potentialMoneyReimbursement" destination="bUJ-Vz-pVh" id="bRA-wN-8HT"/>
             </connections>
-            <point key="canvasLocation" x="351" y="406"/>
+            <point key="canvasLocation" x="65" y="458"/>
         </tableViewCell>
     </objects>
 </document>

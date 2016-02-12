@@ -26,7 +26,7 @@ public class SplittableTableViewCell: UITableViewCell {
 		super.awakeFromNib()
 		
 		// Setup cell layer properties.
-		outlineView.layer.cornerRadius = 16
+		outlineView.layer.cornerRadius = 8
 		outlineView.layer.shadowOffset = CGSizeMake(2, 2)
 		outlineView.layer.shadowOpacity = 0.5
 		
